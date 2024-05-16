@@ -1,5 +1,6 @@
 from resources.generator import ImageGenerator
 from PIL import Image
+import pandas as pd
 import sqlite3
 
 # Path to the directory containing the images
@@ -55,3 +56,28 @@ def save_metadata_in_database(metadata):
     conn.close()
     print(f"Metadata for {metadata['filename']} saved to database.")
 
+def fetch_metadata(limit=5):
+    """
+    Fetches a limited number of metadata entries from the SQLite database and returns it as a Pandas DataFrame.
+    """
+    conn = sqlite3.connect('image_metadata.db')
+    query = f"SELECT * FROM metadata LIMIT {limit}"
+    df = pd.read_sql_query(query, conn)
+    conn.close()
+    return df
+
+if __name__ == "__main__":
+    create_database()  # Ensure that the database and table exist
+    
+    for _ in range(10):  # We can use while True instead of a for-loop later
+        try:
+            image = next(img_gen)
+            metadata = get_metadata(image)
+            save_metadata_in_database(metadata)
+        except StopIteration:
+            print("No more images to process.")
+            break
+    
+    # Fetch the first 5 metadata entries and print them as a DataFrame
+    df = fetch_metadata(limit=5)
+    print(df)
