@@ -1,5 +1,4 @@
 from resources.generator import ImageGenerator
-from PIL import Image
 import pandas as pd
 import sqlite3
 
@@ -79,5 +78,5 @@ if __name__ == "__main__":
             break
     
     # Fetch the first 5 metadata entries and print them as a DataFrame
-    df = fetch_metadata(limit=5)
+    df = fetch_metadata(limit=10)
     print(df)

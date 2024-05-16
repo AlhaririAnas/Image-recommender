@@ -3,6 +3,12 @@ from PIL import Image
 
 class ImageGenerator:
     def __init__(self, directory):
+        """
+        This class generates paths of images from a specified directory.
+        
+        Methods:
+        - image_generator(): Generates images (paths) from the directory one by one.
+        """
         self.directory = directory
 
     def image_generator(self):
