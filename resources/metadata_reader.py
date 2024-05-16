@@ -40,3 +40,18 @@ def get_metadata(image):
         "mode": image.mode
     }
     return metadata_dict
+
+def save_metadata_in_database(metadata):
+    """
+    Saves the image metadata in the SQLite database.
+    """
+    conn = sqlite3.connect('image_metadata.db')
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO metadata (filename, height, width, format, mode) 
+        VALUES (:filename, :height, :width, :format, :mode)
+    ''', metadata)
+    conn.commit()
+    conn.close()
+    print(f"Metadata for {metadata['filename']} saved to database.")
+
