@@ -26,3 +26,17 @@ def create_database():
     conn.commit()
     conn.close()
 
+def get_metadata(image):
+    """
+    Retrieves metadata of the given image.
+    """
+    start_index = image.filename.index('data')
+    
+    metadata_dict = {
+        "filename": image.filename[start_index:].strip(),
+        "height": image.height,
+        "width": image.width,
+        "format": image.format,
+        "mode": image.mode
+    }
+    return metadata_dict
