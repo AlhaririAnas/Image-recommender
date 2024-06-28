@@ -8,7 +8,12 @@ def prepocess(img):
     try:
         transform = transforms.Compose([transforms.Resize(299), transforms.CenterCrop(299), transforms.ToTensor()])
         img = transform(img)
+
+        if img.unsqueeze(0).shape[1] == 1:  # If the photo consists of grayscale => triple it
+            img = torch.cat([img, img, img], dim=0)
+
         return img.unsqueeze(0)
+
     except Exception as e:
         print(f"Error loading image {img}: {e}")
         return None
