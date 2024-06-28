@@ -1,4 +1,3 @@
-import pickle
 from resources.embedding import inception_v3
 
 ### import other similarity measure methods
