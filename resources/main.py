@@ -14,7 +14,7 @@ parser.add_argument("-m", "--metadata", action="store_true")
 
 parser.add_argument("-s", "--similarity", action="store_true")
 
-parser.add_argument("-p", "--path", action="store")
+parser.add_argument("-p", "--path", action="store", default="D:/data/image_data")
 
 parser.add_argument("-d", "--device", type=str, default=None, help="Device to use: cuda or cpu")
 
