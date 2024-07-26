@@ -28,6 +28,6 @@ jobs:
       - name: lint with ruff
         run: |
           ruff resources/.
-      #- name: test with pytest
-        #run: |
-          #pytest -v
+      - name: test with pytest
+        run: |
+          pytest -v

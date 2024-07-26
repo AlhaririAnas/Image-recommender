@@ -1,4 +1,4 @@
-from resources.image_similarity import *
+from resources.similarity import *
 import numpy as np
 
 v1 = np.array([0.1, 0.2, 0.4, 0.6])
