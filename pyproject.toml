@@ -35,7 +35,15 @@ dependencies = [
     "ruff == 0.1.7",
     "pytest==7.4.3", 
     "numpy==1.26.1",
-    "pandas==2.2.0"
+    "pandas==2.2.0",
+    "torch",
+    "torchvision",
+    "ultralytics",
+    "tqdm",
+    "Pillow",
+    "opencv-python",
+    "scikit-learn",
+    "scipy",
 ]
 
 description = "A package implementing the Image-recommender"
