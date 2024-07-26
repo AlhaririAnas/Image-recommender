@@ -80,7 +80,7 @@ def get_last_entry():
     df = pd.read_sql_query(query, conn)
     try:
         id = int(df.id.iloc[0])
-    except:
+    except Exception:
         id = 0
     conn.close()
     return id
