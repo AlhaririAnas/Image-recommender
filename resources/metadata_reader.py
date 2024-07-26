@@ -70,6 +70,21 @@ def fetch_metadata(limit=5):
     conn.close()
     return df
 
+def get_last_entry():
+    """
+    Retrieves the last entry ID from the 'metadata' table in the SQLite database.
+    Returns the last entry ID as an integer.
+    """
+    conn = sqlite3.connect("image_metadata.db")
+    query = "SELECT id FROM metadata ORDER BY id DESC LIMIT 1"
+    df = pd.read_sql_query(query, conn)
+    try:
+        id = int(df.id.iloc[0])
+    except:
+        id = 0
+    conn.close()
+    return id
+
 
 if __name__ == "__main__":
     # Path to the directory containing the images
