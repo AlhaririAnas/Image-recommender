@@ -27,6 +27,9 @@ def color_histogram(image, bins=256, group_size=2):
             grouped_hist.append(group_mean)
         return np.array(grouped_hist)
     
+    if image.ndim == 2:
+        image = np.stack((image,) * 3, axis=-1)
+    
     hist_r = cv2.calcHist([image], [0], None, [bins], [0, 256]).flatten()
     hist_g = cv2.calcHist([image], [1], None, [bins], [0, 256]).flatten()
     hist_b = cv2.calcHist([image], [2], None, [bins], [0, 256]).flatten()

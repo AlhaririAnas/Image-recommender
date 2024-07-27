@@ -4,7 +4,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from resources.generator import ImageGenerator
-from resources.metadata_reader import create_database, get_metadata, save_metadata_in_database
+from resources.metadata_reader import create_database, get_metadata, save_metadata_in_database, get_last_entry
 from resources.similarity import get_similarities
 
 
@@ -31,18 +31,26 @@ def run(args):
         args.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     create_database()
-    similarities = defaultdict()
-    id = 0
-    for img in tqdm(img_gen, total=447375):
+    try:
+        with open(args.pkl_file, "rb") as f:
+            similarities = pickle.load(f)
+    except FileNotFoundError:
+        similarities = defaultdict()
+    
+    last_db_id = get_last_entry()
+    id = min(len(similarities), last_db_id)
+    for img in tqdm(img_gen, total=447375, initial=id):
         id += 1
-        if args.metadata:
+        if args.metadata and last_db_id < id:
             metadata = get_metadata(img)
             save_metadata_in_database(metadata)
         if args.similarity:
             similarities[id] = get_similarities(img, args)
-            if id % args.checkpoint:
+            if id % args.checkpoint == 0:
                 with open(args.pkl_file, "wb") as f:
                     pickle.dump(similarities, f)
+    with open(args.pkl_file, "wb") as f:
+        pickle.dump(similarities, f)
 
 
 if __name__ == "__main__":
