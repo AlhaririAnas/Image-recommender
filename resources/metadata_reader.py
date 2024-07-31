@@ -70,6 +70,7 @@ def fetch_metadata(limit=5):
     conn.close()
     return df
 
+
 def get_last_entry():
     """
     Retrieves the last entry ID from the 'metadata' table in the SQLite database.

@@ -2,11 +2,13 @@ import pytest
 from unittest.mock import MagicMock, patch
 from resources.yolo import get_yolo_classes, calculate_iou, mean_iou
 
+
 # Mocking the YOLO model
 @pytest.fixture
 def mock_yolo_model():
     with patch("resources.yolo.model", autospec=True) as mock_model:
         yield mock_model
+
 
 def test_get_yolo_classes(mock_yolo_model):
     img = "dummy_image"
@@ -24,6 +26,7 @@ def test_get_yolo_classes(mock_yolo_model):
         1: [[50, 60, 70, 80]],
     }
 
+
 def test_calculate_iou():
     box1 = [10, 20, 30, 40]
     box2 = [20, 30, 40, 50]
@@ -39,6 +42,7 @@ def test_calculate_iou():
     box6 = [20, 20, 30, 30]
     expected_iou = 0.0
     assert calculate_iou(box5, box6) == expected_iou
+
 
 def test_mean_iou():
     dict1 = {
@@ -67,6 +71,7 @@ def test_mean_iou():
     }
     expected_mean_iou = 0.0
     assert mean_iou(dict5, dict6) == expected_mean_iou
+
 
 if __name__ == "__main__":
     pytest.main()
