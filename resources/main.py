@@ -6,6 +6,7 @@ from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from resources.generator import ImageGenerator
 from resources.metadata_reader import create_database, get_metadata, save_metadata_in_database, get_last_entry
 from resources.similarity import get_similarities
+from app.app import app
 
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
@@ -36,7 +37,7 @@ def run(args):
             similarities = pickle.load(f)
     except FileNotFoundError:
         similarities = defaultdict()
-    
+
     last_db_id = get_last_entry()
     id = min(len(similarities), last_db_id)
     for img in tqdm(img_gen, total=447375, initial=id):
@@ -45,7 +46,10 @@ def run(args):
             metadata = get_metadata(img)
             save_metadata_in_database(metadata)
         if args.similarity:
-            similarities[id] = get_similarities(img, args)
+            try:
+                similarities[id] = get_similarities(img, args)
+            except OSError:
+                continue
             if id % args.checkpoint == 0:
                 with open(args.pkl_file, "wb") as f:
                     pickle.dump(similarities, f)
@@ -54,4 +58,8 @@ def run(args):
 
 
 if __name__ == "__main__":
-    run(args)
+    if args.metadata or args.similarity:
+        run(args)
+    else:
+        app.config["ARGS"] = args
+        app.run(debug=True)

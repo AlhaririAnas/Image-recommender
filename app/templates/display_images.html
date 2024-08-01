@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uploaded Images and Similar Images</title>
+    <style>
+        img {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Uploaded Images and Similar Images</h1>
+    <h2>Uploaded Images:</h2>
+    {% for image in results.uploaded_images %}
+        <img src="{{ url_for('uploaded_file_static', filename=image) }}" alt="Uploaded Image">
+    {% endfor %}
+
+    {% if results.color_based %}
+        <h2>Color-based Similar Images</h2>
+        {% for image in results.color_based %}
+            <img src="{{ url_for('uploaded_file_static', filename=image|basename) }}" alt="Color-based Similar Image">
+        {% endfor %}
+    {% endif %}
+
+    {% if results.embedding_based %}
+        <h2>Embedding-based Similar Images</h2>
+        {% for image in results.embedding_based %}
+            <img src="{{ url_for('uploaded_file_static', filename=image|basename) }}" alt="Embedding-based Similar Image">
+        {% endfor %}
+    {% endif %}
+
+    {% if results.yolo_based %}
+        <h2>YOLO-based Similar Images</h2>
+        {% for image in results.yolo_based %}
+            <img src="{{ url_for('uploaded_file_static', filename=image|basename) }}" alt="YOLO-based Similar Image">
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
