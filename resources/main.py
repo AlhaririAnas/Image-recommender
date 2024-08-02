@@ -1,10 +1,19 @@
+import os
 import torch
 import pickle
 from tqdm import tqdm
+from sklearn.cluster import DBSCAN, KMeans
+from sklearn.preprocessing import StandardScaler
 from collections import defaultdict
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from resources.generator import ImageGenerator
-from resources.metadata_reader import create_database, get_metadata, save_metadata_in_database, get_last_entry
+from resources.metadata_reader import (
+    create_database,
+    get_metadata,
+    save_metadata_in_database,
+    get_last_entry,
+    get_filename_from_id,
+)
 from resources.similarity import get_similarities
 from app.app import app
 
@@ -15,7 +24,7 @@ parser.add_argument("-m", "--metadata", action="store_true")
 
 parser.add_argument("-s", "--similarity", action="store_true")
 
-parser.add_argument("-p", "--path", action="store", default="D:/data/image_data")
+parser.add_argument("-p", "--path", action="store", default="D:/")
 
 parser.add_argument("-d", "--device", type=str, default=None, help="Device to use: cuda or cpu")
 
@@ -27,7 +36,6 @@ args = parser.parse_args()
 
 
 def run(args):
-    img_gen = ImageGenerator(args.path).image_generator()
     if args.device is None:
         args.device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -37,10 +45,19 @@ def run(args):
             similarities = pickle.load(f)
     except FileNotFoundError:
         similarities = defaultdict()
+        similarities[1] = None
 
     last_db_id = get_last_entry()
-    id = min(len(similarities), last_db_id)
-    for img in tqdm(img_gen, total=447375, initial=id):
+    last_sim_id = max(similarities.keys())
+    id = min(last_sim_id, last_db_id)
+
+    if id == 0:
+        starting_path = None
+    else:
+        starting_path = os.join(args.path, get_filename_from_id(id))
+    img_gen = ImageGenerator(args.path).image_generator(starting_path=starting_path)
+
+    for img in tqdm(img_gen, total=447584, initial=id):
         id += 1
         if args.metadata and last_db_id < id:
             metadata = get_metadata(img)
@@ -57,9 +74,57 @@ def run(args):
         pickle.dump(similarities, f)
 
 
+def create_and_save_clustering_model(vectors, vector_ids, filename, clusters, method="kmeans"):
+    scaler = StandardScaler()
+    vectors_scaled = scaler.fit_transform(vectors)
+
+    if method == "dbscan":
+        model = DBSCAN(eps=0.5, min_samples=5)
+    elif method == "kmeans":
+        model = KMeans(n_clusters=clusters, random_state=0)
+    else:
+        raise ValueError("Unsupported clustering method")
+
+    model.fit(vectors_scaled)
+
+    with open(filename, "wb") as f:
+        pickle.dump({"model": model, "scaler": scaler, "vector_ids": vector_ids}, f)
+    print(f"Clustering model saved to {filename}")
+
+
 if __name__ == "__main__":
     if args.metadata or args.similarity:
         run(args)
     else:
+        print("Loading similarities from pickle file...")
+        try:
+            with open(args.pkl_file, "rb") as f:
+                similarities = pickle.load(f)
+                app.config["SIMILARITIES"] = similarities
+        except FileNotFoundError:
+            raise ValueError("No similarities found! Run the script with the -s flag.")
+        if os.path.exists("color_cluster.pkl"):
+            with open("color_cluster.pkl", "rb") as f:
+                app.config["COLOR_CLUSTER"] = pickle.load(f)
+        else:
+            print("No color cluster found. Creating...")
+            create_and_save_clustering_model(
+                [similarities[v][0] for v in similarities.keys()],
+                [v for v in similarities.keys()],
+                filename="color_cluster.pkl",
+                clusters=41,
+            )
+        if os.path.exists("embedding_cluster.pkl"):
+            with open("embedding_cluster.pkl", "rb") as f:
+                app.config["EMBEDDING_CLUSTER"] = pickle.load(f)
+        else:
+            print("No embedding cluster found. Creating...")
+            create_and_save_clustering_model(
+                [similarities[v][1] for v in similarities.keys()],
+                [v for v in similarities.keys()],
+                filename="embedding_cluster.pkl",
+                clusters=45,
+            )
+
         app.config["ARGS"] = args
-        app.run(debug=True)
+        app.run()

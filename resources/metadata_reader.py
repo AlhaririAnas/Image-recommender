@@ -87,6 +87,18 @@ def get_last_entry():
     return id
 
 
+def get_filename_from_id(id):
+    conn = sqlite3.connect("image_metadata.db")
+    query = f"SELECT filename FROM metadata WHERE id = {id}"
+    df = pd.read_sql_query(query, conn)
+    try:
+        filename = df.filename.iloc[0]
+    except Exception:
+        filename = None
+    conn.close()
+    return filename
+
+
 if __name__ == "__main__":
     # Path to the directory containing the images
     directory_path = "D:/data/image_data"

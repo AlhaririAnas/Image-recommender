@@ -1,4 +1,4 @@
-import pickle
+from itertools import chain
 import numpy as np
 from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity as cos_similarity
@@ -28,41 +28,58 @@ def get_similarities(img, args):
     return [histogram, features, yolo_classes]
 
 
-def get_most_similar(img_paths, args, similarity_measures):
-    color_similarities = []
-    embedding_similarities = []
+def get_most_similar(
+    img_paths, args, similarity_measures, distance_measure, all_similarities, color_clusters, embedding_clusters
+):
+    similarities = []
     yolo_similarities = []
-
-    for img_path in img_paths:
-        img = Image.open(img_path)
-        similarities = get_similarities(img, args)
-        if "color" in similarity_measures:
-            color_similarities.append(similarities[0])
-        if "embedding" in similarity_measures:
-            embedding_similarities.append(similarities[1])
-        if "yolo" in similarity_measures:
-            yolo_similarities.append(similarities[2])
-
-    with open(args.pkl_file, "rb") as f:
-        all_similarities = pickle.load(f)
 
     color_distances = {}
     embedding_distances = {}
     yolo_distances = {}
 
-    for image_id, vectors in all_similarities.items():
-        if "color" in similarity_measures:
-            color_distance = np.mean([euclidean_distance(similarity, vectors[0]) for similarity in color_similarities])
-            color_distances[image_id] = color_distance
-        if "embedding" in similarity_measures:
-            embedding_distance = np.mean(
-                [euclidean_distance(similarity, vectors[1]) for similarity in embedding_similarities]
-            )
-            embedding_distances[image_id] = embedding_distance
-        if "yolo" in similarity_measures:
-            yolo_distance = np.mean([mean_iou(similarity, vectors[2]) for similarity in yolo_similarities])
-            yolo_distances[image_id] = yolo_distance
+    distance_func = {"euclidean": euclidean_distance, "manhattan": manhattan_distance, "cosine": cosine_similarity}[
+        distance_measure
+    ]
 
+    for img_path in img_paths:
+        img = Image.open(img_path)
+        sim = get_similarities(img, args)
+        similarities.append(sim)
+        if "yolo" in similarity_measures:
+            yolo_similarities.append(sim[2])
+
+    if "color" in similarity_measures:
+        color_similarity = np.mean([similarity[0] for similarity in similarities], axis=0)
+        model, scaler, vector_ids = color_clusters["model"], color_clusters["scaler"], color_clusters["vector_ids"]
+        color_similarity_scaled = scaler.transform([color_similarity])
+        cluster_label = model.predict(color_similarity_scaled)[0]
+        same_cluster_ids = [vector_ids[i] for i, label in enumerate(model.labels_) if label == cluster_label]
+        for image_id in same_cluster_ids:
+            color_distance = np.mean([distance_func(all_similarities[image_id][0], color_similarity)])
+            color_distances[image_id] = color_distance
+
+    if "embedding" in similarity_measures:
+        embedding_similarity = np.mean([similarity[1] for similarity in similarities], axis=0)
+        model, scaler, vector_ids = (
+            embedding_clusters["model"],
+            embedding_clusters["scaler"],
+            embedding_clusters["vector_ids"],
+        )
+        embedding_similarity_scaled = scaler.transform([embedding_similarity])
+        cluster_label = model.predict(embedding_similarity_scaled)[0]
+        same_cluster_ids = [vector_ids[i] for i, label in enumerate(model.labels_) if label == cluster_label]
+        for image_id in same_cluster_ids:
+            embedding_distance = np.mean([distance_func(all_similarities[image_id][1], embedding_similarity)])
+            embedding_distances[image_id] = embedding_distance
+
+    if "yolo" in similarity_measures:
+        yolo_classes = list(chain.from_iterable(yolo_sim.keys() for yolo_sim in yolo_similarities))
+        for image_id, vectors in all_similarities.items():
+            if any(item in list(vectors[2].keys()) for item in yolo_classes):
+                yolo_distance = np.mean([mean_iou(similarity, vectors[2]) for similarity in yolo_similarities])
+                yolo_distances[image_id] = yolo_distance
+    print(len(color_distances), len(embedding_distances), len(yolo_distances))
     color_most_similar = sorted(color_distances, key=color_distances.get)[:5] if "color" in similarity_measures else []
     embedding_most_similar = (
         sorted(embedding_distances, key=embedding_distances.get)[:5] if "embedding" in similarity_measures else []
