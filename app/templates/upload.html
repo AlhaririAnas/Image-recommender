@@ -1,0 +1,33 @@
+<!-- templates/upload.html -->
+{% extends "layout.html" %}
+{% block title %}Upload Images{% endblock %}
+{% block content %}
+<h1 class="mb-4">Upload Images (up to 5)</h1>
+<form method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="file">Choose files</label>
+        <input type="file" class="form-control-file" name="file" id="file" multiple>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" name="similarity_measure" value="color" id="color">
+        <label class="form-check-label" for="color">Color</label>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" name="similarity_measure" value="embedding" id="embedding">
+        <label class="form-check-label" for="embedding">Embedding</label>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" name="similarity_measure" value="yolo" id="yolo">
+        <label class="form-check-label" for="yolo">YOLO</label>
+    </div>
+    <div class="form-group">
+        <label for="distance_measure">Choose a distance measure:</label>
+        <select class="form-control" name="distance_measure" id="distance_measure">
+            <option value="euclidean">Euclidean</option>
+            <option value="manhattan">Manhattan</option>
+            <option value="cosine">Cosine</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+{% endblock %}
