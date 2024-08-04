@@ -2,7 +2,13 @@
 {% extends "layout.html" %}
 {% block title %}Uploaded Images and Similar Images{% endblock %}
 {% block content %}
-<h1>Uploaded Images and Similar Images</h1>
+<h1>Uploaded Images and Similar Images <span class="time">(processed in {{ results.processing_time }} seconds)</span></h1>
+<style>
+    .time {
+        font-size: 0.8em;
+        color: gray;
+    }
+</style>
 <h2>Uploaded Images:</h2>
 <div class="row">
     {% for image in results.uploaded_images %}
