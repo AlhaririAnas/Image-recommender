@@ -38,7 +38,7 @@ dependencies = [
     "pandas==2.2.0",
     "torch",
     "torchvision",
-    "ultralytics<=8.2.63",
+    "ultralytics==8.2.46",
     "tqdm",
     "Pillow",
     "opencv-python",
