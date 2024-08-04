@@ -45,6 +45,8 @@ dependencies = [
     "scikit-learn",
     "scipy",
     "flask",
+    "waitress",
+    "matplotlib",
 ]
 
 description = "A package implementing the Image-recommender"
