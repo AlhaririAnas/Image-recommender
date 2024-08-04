@@ -21,7 +21,15 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: install dependencies
+      - name: install dependencies on windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          python -m pip install --upgrade pip
+          choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools"
+          choco install cmake
+          pip install .
+      - name: install dependencies on other OSes
+        if: matrix.os != 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install .
