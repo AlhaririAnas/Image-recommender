@@ -65,7 +65,7 @@ def run(args):
     if id == 0:
         starting_path = None
     else:
-        starting_path = os.join(args.path, get_filename_from_id(id))
+        starting_path = os.path.join(args.path, get_filename_from_id(id))
     img_gen = ImageGenerator(args.path).image_generator(starting_path=starting_path)
 
     for img in tqdm(img_gen, total=447584, initial=id):

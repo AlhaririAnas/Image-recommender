@@ -33,7 +33,7 @@ classifiers = [
 ]
 dependencies = [
     "ruff == 0.1.7",
-    "pytest==7.4.3", 
+    "pytest", 
     "numpy==1.26.1",
     "pandas==2.2.0",
     "torch",
@@ -46,7 +46,6 @@ dependencies = [
     "scipy",
     "flask",
     "waitress",
-    "matplotlib",
 ]
 
 description = "A package implementing the Image-recommender"
