@@ -3,6 +3,8 @@ from werkzeug.utils import secure_filename
 import sqlite3
 import os
 import shutil
+import webbrowser
+from waitress import serve
 from resources.similarity import get_most_similar
 import urllib.parse
 
@@ -121,6 +123,11 @@ def uploaded_file_static(filename):
 @app.template_filter("basename")
 def basename_filter(path):
     return os.path.basename(path)
+
+
+def start_app():
+    webbrowser.open("http://127.0.0.1:8080")
+    serve(app, host="127.0.0.1", port=8080)
 
 
 if __name__ == "__main__":

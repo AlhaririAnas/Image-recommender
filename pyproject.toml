@@ -44,6 +44,7 @@ dependencies = [
     "opencv-python",
     "scikit-learn",
     "scipy",
+    "flask",
 ]
 
 description = "A package implementing the Image-recommender"

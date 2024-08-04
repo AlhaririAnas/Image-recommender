@@ -15,7 +15,7 @@ from resources.metadata_reader import (
     get_filename_from_id,
 )
 from resources.similarity import get_similarities
-from app.app import app
+from app.app import app, start_app
 
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
@@ -32,10 +32,21 @@ parser.add_argument("--pkl_file", action="store", default="similarities.pkl")
 
 parser.add_argument("--checkpoint", type=int, default=100)
 
+parser.add_argument("--debug", action="store_true")
+
 args = parser.parse_args()
 
 
 def run(args):
+    """
+    Runs the main image processing pipeline based on the provided arguments.
+
+    Args:
+        args: The arguments containing device information, file paths, and processing options.
+
+    Returns:
+        None
+    """
     if args.device is None:
         args.device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -75,6 +86,19 @@ def run(args):
 
 
 def create_and_save_clustering_model(vectors, vector_ids, filename, clusters, method="kmeans"):
+    """
+    Creates and saves a clustering model based on the input vectors.
+
+    Parameters:
+        vectors (array): The input vectors for clustering.
+        vector_ids (array): The IDs corresponding to the input vectors.
+        filename (str): The name of the file to save the clustering model.
+        clusters (int): The number of clusters to create.
+        method (str, optional): The clustering method to use, defaults to "kmeans".
+
+    Returns:
+        None
+    """
     scaler = StandardScaler()
     vectors_scaled = scaler.fit_transform(vectors)
 
@@ -92,39 +116,51 @@ def create_and_save_clustering_model(vectors, vector_ids, filename, clusters, me
     print(f"Clustering model saved to {filename}")
 
 
+def load_pkl_files():
+    """
+    A function to load pickle files containing similarities, color clusters, and embedding clusters.
+    If the files are not found, it creates the clusters using the create_and_save_clustering_model function.
+    """
+    print("Loading similarities from pickle file...")
+    try:
+        with open(args.pkl_file, "rb") as f:
+            similarities = pickle.load(f)
+            app.config["SIMILARITIES"] = similarities
+    except FileNotFoundError:
+        raise ValueError("No similarities found! Run the script with the -s flag.")
+    if os.path.exists("color_cluster.pkl"):
+        with open("color_cluster.pkl", "rb") as f:
+            app.config["COLOR_CLUSTER"] = pickle.load(f)
+    else:
+        print("No color cluster found. Creating...")
+        create_and_save_clustering_model(
+            [similarities[v][0] for v in similarities.keys()],
+            [v for v in similarities.keys()],
+            filename="color_cluster.pkl",
+            clusters=41,
+        )
+    if os.path.exists("embedding_cluster.pkl"):
+        with open("embedding_cluster.pkl", "rb") as f:
+            app.config["EMBEDDING_CLUSTER"] = pickle.load(f)
+    else:
+        print("No embedding cluster found. Creating...")
+        create_and_save_clustering_model(
+            [similarities[v][1] for v in similarities.keys()],
+            [v for v in similarities.keys()],
+            filename="embedding_cluster.pkl",
+            clusters=45,
+        )
+
+    print("Done!")
+
+
 if __name__ == "__main__":
     if args.metadata or args.similarity:
         run(args)
     else:
-        print("Loading similarities from pickle file...")
-        try:
-            with open(args.pkl_file, "rb") as f:
-                similarities = pickle.load(f)
-                app.config["SIMILARITIES"] = similarities
-        except FileNotFoundError:
-            raise ValueError("No similarities found! Run the script with the -s flag.")
-        if os.path.exists("color_cluster.pkl"):
-            with open("color_cluster.pkl", "rb") as f:
-                app.config["COLOR_CLUSTER"] = pickle.load(f)
-        else:
-            print("No color cluster found. Creating...")
-            create_and_save_clustering_model(
-                [similarities[v][0] for v in similarities.keys()],
-                [v for v in similarities.keys()],
-                filename="color_cluster.pkl",
-                clusters=41,
-            )
-        if os.path.exists("embedding_cluster.pkl"):
-            with open("embedding_cluster.pkl", "rb") as f:
-                app.config["EMBEDDING_CLUSTER"] = pickle.load(f)
-        else:
-            print("No embedding cluster found. Creating...")
-            create_and_save_clustering_model(
-                [similarities[v][1] for v in similarities.keys()],
-                [v for v in similarities.keys()],
-                filename="embedding_cluster.pkl",
-                clusters=45,
-            )
-
         app.config["ARGS"] = args
-        app.run()
+        load_pkl_files()
+        if args.debug:
+            app.run(debug=True)
+        else:
+            start_app()

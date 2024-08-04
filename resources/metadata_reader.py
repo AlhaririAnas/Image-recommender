@@ -88,6 +88,15 @@ def get_last_entry():
 
 
 def get_filename_from_id(id):
+    """
+    Retrieves the filename associated with the given ID from the SQLite database.
+
+    Parameters:
+    id (int): The ID used to query the filename from the database.
+
+    Returns:
+    str or None: The filename corresponding to the provided ID if found, otherwise None.
+    """
     conn = sqlite3.connect("image_metadata.db")
     query = f"SELECT filename FROM metadata WHERE id = {id}"
     df = pd.read_sql_query(query, conn)
