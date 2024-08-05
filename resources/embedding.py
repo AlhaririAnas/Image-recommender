@@ -31,11 +31,11 @@ def prepocess(img):
 def inception_v3(img, device):
     """
     This function runs an Inception v3 model on the input image to extract features and returns a flattened numpy array.
-    
+
     Parameters:
     img: the input image to be processed.
     device: the device (cpu or gpu) on which to run the model.
-    
+
     Returns:
     A flattened numpy array of extracted features from the input image.
     """
@@ -44,5 +44,5 @@ def inception_v3(img, device):
     model.eval()
     with torch.no_grad():
         model.to(device)
-        img = prepocess(img)
+        img = prepocess(img).to(device)
         return model(img).cpu().numpy().flatten()

@@ -70,6 +70,7 @@ def fetch_metadata(limit=5):
     conn.close()
     return df
 
+
 def get_last_entry():
     """
     Retrieves the last entry ID from the 'metadata' table in the SQLite database.
@@ -84,6 +85,27 @@ def get_last_entry():
         id = 0
     conn.close()
     return id
+
+
+def get_filename_from_id(id):
+    """
+    Retrieves the filename associated with the given ID from the SQLite database.
+
+    Parameters:
+    id (int): The ID used to query the filename from the database.
+
+    Returns:
+    str or None: The filename corresponding to the provided ID if found, otherwise None.
+    """
+    conn = sqlite3.connect("image_metadata.db")
+    query = f"SELECT filename FROM metadata WHERE id = {id}"
+    df = pd.read_sql_query(query, conn)
+    try:
+        filename = df.filename.iloc[0]
+    except Exception:
+        filename = None
+    conn.close()
+    return filename
 
 
 if __name__ == "__main__":

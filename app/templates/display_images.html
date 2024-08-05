@@ -1,0 +1,53 @@
+<!-- templates/display_images.html -->
+{% extends "layout.html" %}
+{% block title %}Uploaded Images and Similar Images{% endblock %}
+{% block content %}
+<h1>Uploaded Images and Similar Images <span class="time">(processed in {{ results.processing_time }} seconds)</span></h1>
+<style>
+    .time {
+        font-size: 0.8em;
+        color: gray;
+    }
+</style>
+<h2>Uploaded Images:</h2>
+<div class="row">
+    {% for image in results.uploaded_images %}
+        <div class="col-md-3">
+            <img src="{{ url_for('uploaded_file_static', filename=image) }}" alt="Uploaded Image" class="img-thumbnail">
+        </div>
+    {% endfor %}
+</div>
+
+{% if results.color_based %}
+    <h2>Color-based Similar Images</h2>
+    <div class="row">
+        {% for image in results.color_based %}
+            <div class="col-md-3">
+                <img src="{{ url_for('uploaded_file_static', filename=image|basename) }}" alt="Color-based Similar Image" class="img-thumbnail">
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if results.embedding_based %}
+    <h2>Embedding-based Similar Images</h2>
+    <div class="row">
+        {% for image in results.embedding_based %}
+            <div class="col-md-3">
+                <img src="{{ url_for('uploaded_file_static', filename=image|basename) }}" alt="Embedding-based Similar Image" class="img-thumbnail">
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if results.yolo_based %}
+    <h2>YOLO-based Similar Images</h2>
+    <div class="row">
+        {% for image in results.yolo_based %}
+            <div class="col-md-3">
+                <img src="{{ url_for('uploaded_file_static', filename=image|basename) }}" alt="YOLO-based Similar Image" class="img-thumbnail">
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
