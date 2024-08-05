@@ -102,14 +102,16 @@ def uploaded_files(filenames, full_paths, similarity_measures, distance_measure)
     distance_measure = urllib.parse.unquote(distance_measure)
     args = app.config.get("ARGS", {"path": UPLOAD_FOLDER})  # Use UPLOAD_FOLDER as default path
 
-    color_based, embedding_based, yolo_based, processing_time = process_images(full_paths, args, similarity_measures, distance_measure)
+    color_based, embedding_based, yolo_based, processing_time = process_images(
+        full_paths, args, similarity_measures, distance_measure
+    )
 
     results = {
         "uploaded_images": filenames,
         "color_based": color_based,
         "embedding_based": embedding_based,
         "yolo_based": yolo_based,
-        "processing_time": processing_time
+        "processing_time": processing_time,
     }
 
     return render_template("display_images.html", results=results)

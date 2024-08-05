@@ -56,7 +56,7 @@ def run(args):
             similarities = pickle.load(f)
     except FileNotFoundError:
         similarities = defaultdict()
-        similarities[1] = None
+        similarities[0] = None
 
     last_db_id = get_last_entry()
     last_sim_id = max(similarities.keys())
@@ -73,7 +73,7 @@ def run(args):
         if args.metadata and last_db_id < id:
             metadata = get_metadata(img)
             save_metadata_in_database(metadata)
-        if args.similarity:
+        if args.similarity and last_sim_id < id:
             try:
                 similarities[id] = get_similarities(img, args)
             except OSError:
@@ -128,10 +128,7 @@ def load_pkl_files():
             app.config["SIMILARITIES"] = similarities
     except FileNotFoundError:
         raise ValueError("No similarities found! Run the script with the -s flag.")
-    if os.path.exists("color_cluster.pkl"):
-        with open("color_cluster.pkl", "rb") as f:
-            app.config["COLOR_CLUSTER"] = pickle.load(f)
-    else:
+    if not os.path.exists("color_cluster.pkl"):
         print("No color cluster found. Creating...")
         create_and_save_clustering_model(
             [similarities[v][0] for v in similarities.keys()],
@@ -139,10 +136,7 @@ def load_pkl_files():
             filename="color_cluster.pkl",
             clusters=41,
         )
-    if os.path.exists("embedding_cluster.pkl"):
-        with open("embedding_cluster.pkl", "rb") as f:
-            app.config["EMBEDDING_CLUSTER"] = pickle.load(f)
-    else:
+    if not os.path.exists("embedding_cluster.pkl"):
         print("No embedding cluster found. Creating...")
         create_and_save_clustering_model(
             [similarities[v][1] for v in similarities.keys()],
@@ -150,6 +144,10 @@ def load_pkl_files():
             filename="embedding_cluster.pkl",
             clusters=45,
         )
+    with open("color_cluster.pkl", "rb") as f:
+        app.config["COLOR_CLUSTER"] = pickle.load(f)
+    with open("embedding_cluster.pkl", "rb") as f:
+        app.config["EMBEDDING_CLUSTER"] = pickle.load(f)
 
     print("Done!")
 
