@@ -25,6 +25,7 @@ jobs:
 
       - name: Install dependencies on Windows
         if: matrix.os == 'windows-latest'
+        shell: bash
         run: |
           choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools"
           choco install cmake
