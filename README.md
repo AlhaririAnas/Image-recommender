@@ -48,9 +48,9 @@ Select a distance measure from the dropdown menu (Euclidean, Manhattan, Cosine).
 
 Click "Upload" to start the image similarity search. The process may take a few seconds, and the results will be displayed based on the selected metrics.
 
-Contact
+## Contact
 
-## For any inquiries, please contact:
+For any inquiries, please contact:
 
 * Jonah Gräfe: jonah.graefe@study.hs-duesseldorf.de
 * Anas Alhariri: anas.alhariri@study.hs-duesseldorf.de
