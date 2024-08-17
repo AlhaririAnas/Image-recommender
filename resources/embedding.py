@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 from torchvision import models, transforms
 from torchvision.models.inception import Inception_V3_Weights
+from resources.timeit import timeit
 
-
+@timeit
 def prepocess(img):
     """
     A function that preprocesses an image for the Inception v3 model.
@@ -27,7 +28,7 @@ def prepocess(img):
         print(f"Error loading image {img}: {e}")
         return None
 
-
+@timeit
 def inception_v3(img, device):
     """
     This function runs an Inception v3 model on the input image to extract features and returns a flattened numpy array.
