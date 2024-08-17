@@ -35,7 +35,7 @@ After running the command, the system will open a browser window automatically. 
 
 ## Recommending Images
 To recommend images similar to one or more input images:
-![Web interface](URL_zum_Bild)
+![Web interface]([URL_zum_Bild](https://github.com/AlhaririAnas/Image-recommender/blob/readme/Web%20Interface.png))
 
 Click on "Choose files" and select the input images.
 Choose the type of similarity comparison by checking the appropriate boxes:
