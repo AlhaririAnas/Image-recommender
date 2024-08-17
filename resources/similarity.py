@@ -79,7 +79,6 @@ def get_most_similar(
             if any(item in list(vectors[2].keys()) for item in yolo_classes):
                 yolo_distance = np.mean([mean_iou(similarity, vectors[2]) for similarity in yolo_similarities])
                 yolo_distances[image_id] = yolo_distance
-    print(len(color_distances), len(embedding_distances), len(yolo_distances))
     color_most_similar = sorted(color_distances, key=color_distances.get)[:5] if "color" in similarity_measures else []
     embedding_most_similar = (
         sorted(embedding_distances, key=embedding_distances.get)[:5] if "embedding" in similarity_measures else []
