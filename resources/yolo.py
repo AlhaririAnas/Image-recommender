@@ -65,19 +65,20 @@ def mean_iou(dict1, dict2):
     Returns:
         float: Mean IoU value.
     """
-    iou_list = []
 
-    for label in dict1:
-        if label in dict2:
-            for box1 in dict1[label]:
-                for box2 in dict2[label]:
-                    iou = calculate_iou(box1, box2)
-                    iou_list.append(iou)
+    iou_list = [
+        calculate_iou(box1, box2) for label in dict1 if label in dict2 for box1 in dict1[label] for box2 in dict2[label]
+    ]
 
     if not iou_list:
         return 0.0
 
-    mean_iou = sum(iou_list) / len(iou_list)
+    total = sum(len(value_list) for value_list in dict1.values())
+    matches = sum(len(value_list) == len(dict2[key]) if key in dict2 else 0 for key, value_list in dict1.items())
+
+    match_ratio = matches / total if total > 0 else 0
+    mean_iou = sum(iou_list) / len(iou_list) * match_ratio
+
     return mean_iou
 
 
