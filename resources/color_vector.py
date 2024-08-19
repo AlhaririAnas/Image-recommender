@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
+from resources.timeit import timeit
 
-
+@timeit
 def color_histogram(image, bins=256, group_size=2):
     """
     Compute the color histogram of an RGB image and group the histogram values by calculating

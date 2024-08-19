@@ -15,8 +15,8 @@ from resources.metadata_reader import (
     get_filename_from_id,
 )
 from resources.similarity import get_similarities
+from resources.timeit import timeit
 from app.app import app, start_app
-
 
 parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
 
@@ -36,7 +36,7 @@ parser.add_argument("--debug", action="store_true")
 
 args = parser.parse_args()
 
-
+@timeit
 def run(args):
     """
     Runs the main image processing pipeline based on the provided arguments.
@@ -84,7 +84,7 @@ def run(args):
     with open(args.pkl_file, "wb") as f:
         pickle.dump(similarities, f)
 
-
+@timeit
 def create_and_save_clustering_model(vectors, vector_ids, filename, clusters, method="kmeans"):
     """
     Creates and saves a clustering model based on the input vectors.
@@ -115,7 +115,7 @@ def create_and_save_clustering_model(vectors, vector_ids, filename, clusters, me
         pickle.dump({"model": model, "scaler": scaler, "vector_ids": vector_ids}, f)
     print(f"Clustering model saved to {filename}")
 
-
+@timeit
 def load_pkl_files():
     """
     A function to load pickle files containing similarities, color clusters, and embedding clusters.
